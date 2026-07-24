@@ -1,0 +1,57 @@
+{
+  "name": "ominai-chat",
+  "displayName": "OMINAI Chat",
+  "description": "OMINAI AI Assistant",
+  "version": "1.0.0",
+  "publisher": "ominai",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Machine Learning"
+  ],
+  "activationEvents": [
+    "onView:ominai.chatView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ominai",
+          "title": "OMINAI",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ominai": [
+        {
+          "type": "webview",
+          "id": "ominai.chatView",
+          "name": "Chat",
+          "icon": "media/icon.svg",
+          "contextualTitle": "OMINAI"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./ && node build.js",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.263.1",
+    "zustand": "^4.4.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "typescript": "^5.1.6",
+    "esbuild": "^0.18.17"
+  }
+}
