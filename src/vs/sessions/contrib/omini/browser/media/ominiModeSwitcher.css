@@ -1,0 +1,152 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* OMINI Mode Switcher - Dropdown in the title bar */
+
+.omini-mode-switcher {
+	position: relative;
+	display: flex;
+	align-items: center;
+	margin: 0 8px;
+	height: 22px; /* Match command-center height exactly */
+	-webkit-app-region: no-drag;
+	flex-shrink: 0; /* Never shrink or get crushed */
+	--omini-accent: #a87ffb;
+	--omini-accent-rgb: 168, 127, 251;
+}
+
+/* No command-center overrides! We rely entirely on native VS Code ActionViewItem flexbox layout. */
+
+@keyframes omini-glow-pulse {
+	0% { box-shadow: 0 0 0 0 rgba(var(--omini-accent-rgb), 0.4); border-color: rgba(var(--omini-accent-rgb), 0.6); }
+	50% { box-shadow: 0 0 12px 3px rgba(var(--omini-accent-rgb), 0.9); border-color: rgba(var(--omini-accent-rgb), 1); }
+	100% { box-shadow: 0 0 0 0 rgba(var(--omini-accent-rgb), 0.4); border-color: rgba(var(--omini-accent-rgb), 0.6); }
+}
+
+.omini-mode-trigger {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0 8px;
+	background: rgba(var(--omini-accent-rgb), 0.05); /* Subtle accent tint */
+	border: 1px solid rgba(var(--omini-accent-rgb), 0.5);
+	border-radius: 4px; /* Match command center radius */
+	color: var(--vscode-titleBar-activeForeground);
+	font-size: 11px; /* Match command center font size */
+	line-height: 20px;
+	height: 22px; /* Match exactly */
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+	user-select: none;
+}
+
+/* Pulse animation only activates during processing (OMINI Mode active) */
+.omini-mode-trigger.processing {
+	animation: omini-glow-pulse 3s infinite ease-in-out;
+}
+
+.omini-mode-trigger:hover, .omini-mode-switcher.open .omini-mode-trigger {
+	background: rgba(var(--omini-accent-rgb), 0.15);
+	border-color: rgba(var(--omini-accent-rgb), 0.9);
+}
+
+.omini-trigger-icon {
+	color: var(--omini-accent);
+	font-size: 13px;
+}
+
+.omini-mode-label {
+	font-weight: 500;
+}
+
+.omini-trigger-chevron {
+	font-size: 12px;
+	opacity: 0.7;
+	transition: transform 0.2s ease;
+}
+
+.omini-mode-switcher.open .omini-trigger-chevron {
+	transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.omini-mode-dropdown {
+	position: fixed;
+	transform: translateX(-50%);
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-editorWidget-border);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+	border-radius: 6px;
+	padding: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 200px;
+	z-index: 100000;
+	opacity: 0;
+	pointer-events: none;
+	visibility: hidden;
+	transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+	transform-origin: top center;
+}
+
+.omini-mode-dropdown.show {
+	opacity: 1;
+	pointer-events: auto;
+	visibility: visible;
+}
+
+.omini-mode-option {
+	display: flex;
+	align-items: center;
+	padding: 8px 10px;
+	background: transparent;
+	border: none;
+	border-radius: 4px;
+	color: var(--vscode-foreground);
+	font-size: 12px;
+	cursor: pointer;
+	text-align: left;
+	transition: background 0.15s ease;
+	position: relative;
+}
+
+.omini-mode-option:not(.disabled):hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.omini-mode-option.active {
+	background: var(--vscode-list-activeSelectionBackground);
+	color: var(--vscode-list-activeSelectionForeground);
+}
+
+.omini-option-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--omini-accent);
+	margin-right: 8px;
+}
+
+.omini-option-label {
+	flex: 1;
+}
+
+/* Coming Soon Badge */
+.omini-option-badge {
+	font-size: 9px;
+	text-transform: uppercase;
+	padding: 2px 6px;
+	border-radius: 10px;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+	margin-left: 8px;
+	font-weight: 600;
+}
+
+.omini-mode-option.disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}

@@ -1,0 +1,177 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* ── Dialog overrides ── */
+
+.omini-api-settings-dialog {
+	max-width: 520px !important;
+}
+
+.omini-api-settings-body {
+	padding: 8px 0;
+}
+
+/* ── Provider list ── */
+
+.omini-api-provider-list {
+	margin-bottom: 16px;
+}
+
+.omini-api-provider-list h4,
+.omini-api-provider-form h4 {
+	margin: 0 0 8px 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-editor-foreground);
+}
+
+.omini-api-provider-items {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	max-height: 180px;
+	overflow-y: auto;
+}
+
+.omini-api-provider-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 8px;
+	border-radius: 4px;
+	background: var(--vscode-dropdown-background);
+	gap: 8px;
+}
+
+.omini-api-provider-row:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.omini-api-provider-info {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex: 1;
+	min-width: 0;
+}
+
+.omini-api-provider-name {
+	font-size: 13px;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.omini-api-provider-badge {
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	padding: 1px 5px;
+	border-radius: 3px;
+	background: var(--vscode-testing-iconPassed);
+	color: var(--vscode-editor-background);
+	flex-shrink: 0;
+}
+
+.omini-api-provider-model {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.omini-api-provider-actions {
+	display: flex;
+	gap: 4px;
+	flex-shrink: 0;
+}
+
+/* ── Form ── */
+
+.omini-api-provider-form {
+	margin-top: 4px;
+}
+
+.omini-api-form-field {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	margin-bottom: 8px;
+}
+
+.omini-api-form-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--vscode-editor-foreground);
+}
+
+.omini-api-form-input {
+	padding: 4px 8px;
+	border: 1px solid var(--vscode-dropdown-border, transparent);
+	border-radius: 4px;
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	font-size: 13px;
+	font-family: inherit;
+	outline: none;
+}
+
+.omini-api-form-input:focus {
+	border-color: var(--vscode-focusBorder);
+}
+
+/* ── Buttons ── */
+
+.omini-api-form-buttons {
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.omini-api-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 12px;
+	border: 1px solid var(--vscode-button-border, transparent);
+	border-radius: 4px;
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	font-size: 12px;
+	font-family: inherit;
+	cursor: pointer;
+	user-select: none;
+	white-space: nowrap;
+}
+
+.omini-api-btn:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.omini-api-btn-primary {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+}
+
+.omini-api-btn-primary:hover {
+	background: var(--vscode-button-hoverBackground);
+}
+
+.omini-api-btn-small {
+	padding: 2px 6px;
+	font-size: 11px;
+}
+
+.omini-api-btn-danger:hover {
+	opacity: 0.8;
+}
+
+.omini-api-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
