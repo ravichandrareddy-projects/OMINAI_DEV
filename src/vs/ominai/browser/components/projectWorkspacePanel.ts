@@ -5,6 +5,8 @@
 
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { $, append, EventType, addDisposableListener } from '../../../base/browser/dom.js';
+import { IOminaiLoggerService, IOminaiSessionService } from '../../common/ominaiServices.js';
+import { IQuickInputService } from '../../../platform/quickinput/common/quickInput.js';
 
 export class ProjectWorkspacePanel extends Disposable {
 	private readonly header: HTMLElement;
@@ -13,7 +15,10 @@ export class ProjectWorkspacePanel extends Disposable {
 	private restoreBtn: HTMLElement | undefined;
 
 	constructor(
-		private readonly container: HTMLElement
+		private readonly container: HTMLElement,
+		@IOminaiLoggerService private readonly logger: IOminaiLoggerService,
+		@IQuickInputService private readonly quickInputService: IQuickInputService,
+		@IOminaiSessionService private readonly sessionService: IOminaiSessionService
 	) {
 		super();
 		this.container.classList.add('ominai-project-workspace-panel');
