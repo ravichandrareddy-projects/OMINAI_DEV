@@ -35,6 +35,7 @@ export const OMINI_MODE_DEFINITIONS: IOMINIModeDefinition[] = [
 ];
 
 export const OMINI_MODE_CONTEXT_KEY = new RawContextKey<OMINIMode>('ominiMode', OMINIMode.Code);
+export const onDidChangeOMINIMode = new Emitter<OMINIMode>();
 
 export class OMINIModeSwitcherWidget extends Disposable {
 

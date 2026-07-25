@@ -31,11 +31,31 @@ export class PromptInput extends Disposable {
 		this.textarea.rows = 1;
 		this.textarea.setAttribute('aria-label', 'OMINAI Message Input');
 		
-		const actions = append(this.container, $('div.ominai-prompt-actions'));
-		this.sendBtn = append(actions, $('button.ominai-prompt-send')) as HTMLButtonElement;
-		this.sendBtn.innerHTML = '<span class="codicon codicon-arrow-up"></span>';
+		const controlsBar = append(this.container, $('div.ominai-prompt-controls-bar'));
+		
+		// Left controls
+		const leftControls = append(controlsBar, $('div.ominai-prompt-controls-left'));
+		const attachBtn = append(leftControls, $('button.ominai-prompt-btn.attach-btn'));
+		append(attachBtn, $('span.codicon.codicon-plus'));
+		
+		const contextBtn = append(leftControls, $('button.ominai-prompt-btn.context-btn'));
+		append(contextBtn, $('span.codicon.codicon-mention'));
+		append(contextBtn, $('span')).textContent = 'Add context';
+
+		// Right controls
+		const rightControls = append(controlsBar, $('div.ominai-prompt-controls-right'));
+		const modelSelector = append(rightControls, $('button.ominai-prompt-btn.model-selector'));
+		append(modelSelector, $('span')).textContent = 'Claude 3.5 Sonnet';
+		append(modelSelector, $('span.codicon.codicon-chevron-down'));
+
+		this.sendBtn = append(rightControls, $('button.ominai-prompt-send')) as HTMLButtonElement;
+		append(this.sendBtn, $('span.codicon.codicon-arrow-up'));
 		this.sendBtn.setAttribute('aria-label', 'Send Message');
 		this.sendBtn.disabled = true;
+
+		// Disclaimer
+		const disclaimer = append(this.wrapper, $('div.ominai-prompt-disclaimer'));
+		disclaimer.textContent = 'OMINAI can make mistakes. Please verify important information.';
 
 		this._registerListeners();
 	}
@@ -43,7 +63,9 @@ export class PromptInput extends Disposable {
 	private _registerListeners(): void {
 		this._register(addDisposableListener(this.textarea, EventType.INPUT, () => {
 			this.sendBtn.disabled = this.textarea.value.trim().length === 0;
-			// Auto-resize logic could go here
+			// Simple auto-resize logic
+			this.textarea.style.height = 'auto';
+			this.textarea.style.height = `${Math.min(this.textarea.scrollHeight, 200)}px`;
 		}));
 
 		this._register(addDisposableListener(this.textarea, EventType.KEY_DOWN, (e) => {

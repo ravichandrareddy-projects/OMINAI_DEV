@@ -20,35 +20,53 @@ export class WelcomeScreen extends Disposable {
 		const greeting = append(this.container, $('div.ominai-greeting'));
 		greeting.textContent = 'How can I help you build today?';
 
-		this.suggestionsGrid = append(this.container, $('div.ominai-suggestions-grid'));
-		
-		this._buildSuggestions();
+		// Action Cards
+		this.suggestionsGrid = append(this.container, $('div.ominai-action-cards-grid'));
+		this._buildActionCards();
+
+		// Suggestions Separator
+		const suggestionsSeparator = append(this.container, $('div.ominai-separator'));
+		append(suggestionsSeparator, $('span.ominai-separator-text')).textContent = 'Suggestions';
+
+		// Chips
+		const chipsContainer = append(this.container, $('div.ominai-chips-container'));
+		this._createChip(chipsContainer, 'Add authentication to the app');
+		this._createChip(chipsContainer, 'Optimize database queries');
+		this._createChip(chipsContainer, 'Fix TypeScript errors');
+		this._createChip(chipsContainer, 'Add dark mode');
+
+		// Start Conversation Separator
+		const startConvSeparator = append(this.container, $('div.ominai-separator.start-conversation'));
+		append(startConvSeparator, $('span.ominai-separator-text')).textContent = 'Start a conversation';
 	}
 
-	private _buildSuggestions(): void {
-		this._createSuggestion('Plan a new feature', 'Design and architect a robust feature');
-		this._createSuggestion('Refactor this code', 'Clean up the currently active file');
-		this._createSuggestion('Create a website', 'Bootstrap a new React web application');
-		this._createSuggestion('Find bugs', 'Analyze the current workspace for issues');
+	private _buildActionCards(): void {
+		this._createActionCard('Plan a new feature', 'Design and architect a robust feature', 'codicon-hubot');
+		this._createActionCard('Refactor this code', 'Clean up and improve your code', 'codicon-code');
+		this._createActionCard('Create a website', 'Bootstrap a new web application', 'codicon-globe');
+		this._createActionCard('Find bugs', 'Analyze and fix issues in your code', 'codicon-bug');
 	}
 
-	private _createSuggestion(title: string, desc: string): void {
-		const card = append(this.suggestionsGrid, $('div.ominai-suggestion-card'));
+	private _createActionCard(title: string, desc: string, iconClass: string): void {
+		const card = append(this.suggestionsGrid, $('div.ominai-action-card'));
 		card.tabIndex = 0;
 		card.setAttribute('role', 'button');
-		card.setAttribute('aria-label', `Suggestion: ${title}. ${desc}`);
+		card.setAttribute('aria-label', `Action: ${title}. ${desc}`);
 		
-		append(card, $('div.ominai-suggestion-card-title')).textContent = title;
-		append(card, $('div.ominai-suggestion-card-desc')).textContent = desc;
+		const iconContainer = append(card, $('div.ominai-action-card-icon'));
+		append(iconContainer, $(`span.codicon.${iconClass}`));
 
-		this._register(addDisposableListener(card, EventType.CLICK, () => {
-			// In the future: trigger the prompt input with this suggestion
-		}));
-		this._register(addDisposableListener(card, EventType.KEY_DOWN, (e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				// Keyboard accessibility trigger
-			}
-		}));
+		append(card, $('div.ominai-action-card-title')).textContent = title;
+		append(card, $('div.ominai-action-card-desc')).textContent = desc;
+
+		this._register(addDisposableListener(card, EventType.CLICK, () => {}));
+		this._register(addDisposableListener(card, EventType.KEY_DOWN, (e) => {}));
+	}
+
+	private _createChip(parent: HTMLElement, text: string): void {
+		const chip = append(parent, $('button.ominai-suggestion-chip'));
+		chip.textContent = text;
+		this._register(addDisposableListener(chip, EventType.CLICK, () => {}));
 	}
 
 	public hide(): void {

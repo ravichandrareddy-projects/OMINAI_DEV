@@ -15,7 +15,7 @@ import { Action2, registerAction2 } from '../../../../platform/actions/common/ac
 import { KeyMod, KeyCode } from '../../../../base/common/keyCodes.js';
 import { KeybindingWeight } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
 import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
-import { OMINIMode, OMINI_MODE_DEFINITIONS, OMINI_MODE_CONTEXT_KEY, OMINIModeSwitcherWidget } from './ominiModeSwitcher.js';
+import { OMINIMode, OMINI_MODE_DEFINITIONS, OMINI_MODE_CONTEXT_KEY, OMINIModeSwitcherWidget, onDidChangeOMINIMode } from './ominiModeSwitcher.js';
 
 import { MenuRegistry, MenuId } from '../../../../platform/actions/common/actions.js';
 import { IActionViewItemService } from '../../../../platform/actions/browser/actionViewItemService.js';
@@ -44,6 +44,7 @@ class OMINIModeSwitcherActionViewItem extends BaseActionViewItem {
 		
 		this._register(this._switcherWidget.onDidSelectMode(mode => {
 			this._modeContextKey.set(mode);
+			onDidChangeOMINIMode.fire(mode);
 		}));
 
 		// Natively append our widget to the container provided by the toolbar layout

@@ -8,7 +8,7 @@ import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase 
 import { IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
 import { OminaiWorkspaceOverlay } from './ominaiWorkspaceOverlay.js';
-import { OMINI_MODE_CONTEXT_KEY, OMINIMode } from '../../sessions/contrib/omini/browser/ominiModeSwitcher.js';
+import { OMINI_MODE_CONTEXT_KEY, OMINIMode, onDidChangeOMINIMode } from '../../sessions/contrib/omini/browser/ominiModeSwitcher.js';
 import { CommandsRegistry } from '../../platform/commands/common/commands.js';
 import { MenuRegistry, MenuId } from '../../platform/actions/common/actions.js';
 
@@ -40,10 +40,8 @@ export class OminaiWorkspaceContribution extends Disposable implements IWorkbenc
 		//  so an overlay failure would otherwise prevent the listener from ever
 		//  being registered — the mode switcher would set the context key but
 		//  nobody would be listening.)
-		this._register(this.contextKeyService.onDidChangeContext(e => {
-			if (e.affectsSome(new Set([OMINI_MODE_CONTEXT_KEY.key]))) {
-				this._syncOverlayState();
-			}
+		this._register(onDidChangeOMINIMode.event(mode => {
+			this._syncOverlayState(mode);
 		}));
 
 		// ── Create the overlay with error isolation ──
@@ -53,8 +51,9 @@ export class OminaiWorkspaceContribution extends Disposable implements IWorkbenc
 			this.overlay = this.instantiationService.createInstance(OminaiWorkspaceOverlay);
 			this._register(this.overlay);
 			this.overlay.mount();
-		} catch (error) {
+		} catch (error: any) {
 			console.error('[OMINAI Workspace] Failed to create overlay — mode switching listener is still active.', error);
+			window.alert('[OMINAI] Overlay failed to create: ' + error.message);
 		}
 
 		// Initial sync
@@ -64,11 +63,17 @@ export class OminaiWorkspaceContribution extends Disposable implements IWorkbenc
 		this._registerCommands();
 	}
 
-	private _syncOverlayState(): void {
+	private _syncOverlayState(currentMode?: OMINIMode): void {
 		if (!this.overlay) {
 			return; // overlay creation failed, nothing to show/hide
 		}
-		const currentMode = this.contextKeyService.getContextKeyValue<string>(OMINI_MODE_CONTEXT_KEY.key);
+		if (currentMode === undefined) {
+			currentMode = this.contextKeyService.getContextKeyValue<OMINIMode>(OMINI_MODE_CONTEXT_KEY.key) ?? OMINIMode.Code;
+		}
+		
+		// DEBUG
+		// window.alert(`[OMINAI] _syncOverlayState called. currentMode: ${currentMode}, expected: ${OMINIMode.OMINI}`);
+
 		if (currentMode === OMINIMode.OMINI) {
 			this.overlay.show();
 		} else {
