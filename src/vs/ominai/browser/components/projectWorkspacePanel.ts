@@ -1,8 +1,10 @@
-import { Disposable, IDisposable, toDisposable } from '../../../base/common/lifecycle.js';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+import { Disposable } from '../../../base/common/lifecycle.js';
 import { $, append, EventType, addDisposableListener } from '../../../base/browser/dom.js';
-import { IOminaiLoggerService, IOminaiSessionService } from '../../common/ominaiServices.js';
-import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
-import { IQuickInputService } from '../../../platform/quickinput/common/quickInput.js';
 
 export class ProjectWorkspacePanel extends Disposable {
 	private readonly header: HTMLElement;
@@ -11,11 +13,7 @@ export class ProjectWorkspacePanel extends Disposable {
 	private restoreBtn: HTMLElement | undefined;
 
 	constructor(
-		private readonly container: HTMLElement,
-		@IOminaiLoggerService private readonly logger: IOminaiLoggerService,
-		@IInstantiationService private readonly instantiationService: IInstantiationService,
-		@IQuickInputService private readonly quickInputService: IQuickInputService,
-		@IOminaiSessionService private readonly sessionService: IOminaiSessionService
+		private readonly container: HTMLElement
 	) {
 		super();
 		this.container.classList.add('ominai-project-workspace-panel');
