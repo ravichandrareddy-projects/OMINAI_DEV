@@ -6,25 +6,13 @@
 import { $, addDisposableListener, append, EventType, isAncestor, getWindow } from '../../../../base/browser/dom.js';
 import { Emitter } from '../../../../base/common/event.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
-import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 import { localize } from '../../../../nls.js';
 import { Codicon } from '../../../../base/common/codicons.js';
 import { ThemeIcon } from '../../../../base/common/themables.js';
 import { registerIcon } from '../../../../platform/theme/common/iconRegistry.js';
-
-export const enum OMINIMode {
-	Code = 'code',
-	Agent = 'agent',
-	OMINI = 'omini',
-}
-
-export interface IOMINIModeDefinition {
-	readonly mode: OMINIMode;
-	readonly label: string;
-	readonly description: string;
-	readonly disabled?: boolean;
-	readonly badge?: string;
-}
+import { OMINIMode, OMINI_MODE_CONTEXT_KEY, onDidChangeOMINIMode, IOMINIModeDefinition } from '../../../../ominai/common/ominiMode.js';
+// Re-export for backwards compat — code importing from sessions layer still works
+export { OMINIMode, OMINI_MODE_CONTEXT_KEY, onDidChangeOMINIMode };
 
 const ominaiIcon = registerIcon('ominai-logo', Codicon.activateBreakpoints, 'OMINAI Logo');
 
@@ -33,9 +21,6 @@ export const OMINI_MODE_DEFINITIONS: IOMINIModeDefinition[] = [
 	{ mode: OMINIMode.OMINI, label: 'OMINAI Mode', description: localize('omini.mode.omini.desc', 'Active AI software engineer') },
 	{ mode: OMINIMode.Agent, label: 'Agentic Mode', description: localize('omini.mode.agent.desc', 'Agentic automation'), badge: 'Coming Soon' },
 ];
-
-export const OMINI_MODE_CONTEXT_KEY = new RawContextKey<OMINIMode>('ominiMode', OMINIMode.Code);
-export const onDidChangeOMINIMode = new Emitter<OMINIMode>();
 
 export class OMINIModeSwitcherWidget extends Disposable {
 

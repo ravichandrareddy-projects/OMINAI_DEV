@@ -8,19 +8,27 @@ import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase 
 import { IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
 import { OminaiWorkspaceOverlay } from './ominaiWorkspaceOverlay.js';
-import { OMINI_MODE_CONTEXT_KEY, OMINIMode, onDidChangeOMINIMode } from '../../sessions/contrib/omini/browser/ominiModeSwitcher.js';
+import { OMINI_MODE_CONTEXT_KEY, OMINIMode, onDidChangeOMINIMode } from '../common/ominiMode.js';
 import { CommandsRegistry } from '../../platform/commands/common/commands.js';
 import { MenuRegistry, MenuId } from '../../platform/actions/common/actions.js';
 
 import { registerSingleton, InstantiationType } from '../../platform/instantiation/common/extensions.js';
-import { IOminaiSessionService, IOminaiExecutionService, IOminaiProjectService, IOminaiLoggerService, IOminaiBrowserService } from '../common/ominaiServices.js';
-import { MockOminaiSessionService, MockOminaiExecutionService, MockOminaiProjectService, MockOminaiLoggerService, MockOminaiBrowserService } from './ominaiMockServices.js';
+import { IOminaiSessionService, IOminaiExecutionService, IOminaiProjectService, IOminaiLoggerService, IOminaiBrowserService, IOminaiProviderService } from '../common/ominaiServices.js';
+import { MockOminaiSessionService, MockOminaiExecutionService, MockOminaiProjectService, MockOminaiLoggerService, MockOminaiBrowserService, MockOminaiProviderService } from './ominaiMockServices.js';
 
 registerSingleton(IOminaiSessionService, MockOminaiSessionService, InstantiationType.Delayed);
 registerSingleton(IOminaiExecutionService, MockOminaiExecutionService, InstantiationType.Delayed);
 registerSingleton(IOminaiProjectService, MockOminaiProjectService, InstantiationType.Delayed);
 registerSingleton(IOminaiLoggerService, MockOminaiLoggerService, InstantiationType.Delayed);
 registerSingleton(IOminaiBrowserService, MockOminaiBrowserService, InstantiationType.Delayed);
+registerSingleton(IOminaiProviderService, MockOminaiProviderService, InstantiationType.Delayed);
+
+/**
+ * Feature flag for the OMINAI workspace overlay.
+ * Set to false to disable the overlay entirely.
+ * In production, this would be gated via IProductService or IExperimentService.
+ */
+const OMINAI_WORKSPACE_ENABLED = true;
 
 export class OminaiWorkspaceContribution extends Disposable implements IWorkbenchContribution {
 	static readonly ID = 'workbench.contrib.ominaiWorkspace';
@@ -33,27 +41,25 @@ export class OminaiWorkspaceContribution extends Disposable implements IWorkbenc
 	) {
 		super();
 
+		// Feature flag check
+		if (!this.isEnabled()) {
+			return;
+		}
+
 		// ── Register the context key listener FIRST ──
 		// This must happen BEFORE overlay creation so that mode switching always
 		// triggers _syncOverlayState() even when overlay construction fails.
-		// (safeCreateContribution catches and logs constructor errors silently,
-		//  so an overlay failure would otherwise prevent the listener from ever
-		//  being registered — the mode switcher would set the context key but
-		//  nobody would be listening.)
 		this._register(onDidChangeOMINIMode.event(mode => {
 			this._syncOverlayState(mode);
 		}));
 
 		// ── Create the overlay with error isolation ──
-		// A failure in any single sub-component (DI resolution, constructor)
-		// should not prevent the entire contribution from working.
 		try {
 			this.overlay = this.instantiationService.createInstance(OminaiWorkspaceOverlay);
 			this._register(this.overlay);
 			this.overlay.mount();
 		} catch (error: any) {
 			console.error('[OMINAI Workspace] Failed to create overlay — mode switching listener is still active.', error);
-			window.alert('[OMINAI] Overlay failed to create: ' + error.message);
 		}
 
 		// Initial sync
@@ -63,6 +69,14 @@ export class OminaiWorkspaceContribution extends Disposable implements IWorkbenc
 		this._registerCommands();
 	}
 
+	private isEnabled(): boolean {
+		if (!OMINAI_WORKSPACE_ENABLED) {
+			return false;
+		}
+		// Future: check IExperimentService or product quality gate here
+		return true;
+	}
+
 	private _syncOverlayState(currentMode?: OMINIMode): void {
 		if (!this.overlay) {
 			return; // overlay creation failed, nothing to show/hide
@@ -70,9 +84,6 @@ export class OminaiWorkspaceContribution extends Disposable implements IWorkbenc
 		if (currentMode === undefined) {
 			currentMode = this.contextKeyService.getContextKeyValue<OMINIMode>(OMINI_MODE_CONTEXT_KEY.key) ?? OMINIMode.Code;
 		}
-		
-		// DEBUG
-		// window.alert(`[OMINAI] _syncOverlayState called. currentMode: ${currentMode}, expected: ${OMINIMode.OMINI}`);
 
 		if (currentMode === OMINIMode.OMINI) {
 			this.overlay.show();

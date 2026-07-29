@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import './media/ominai.css';
-import { Disposable } from '../../base/common/lifecycle.js';
+import { Disposable, MutableDisposable } from '../../base/common/lifecycle.js';
 import { $, append } from '../../base/browser/dom.js';
 import { IWorkbenchLayoutService, Parts } from '../../workbench/services/layout/browser/layoutService.js';
 import { mainWindow } from '../../base/browser/window.js';
@@ -12,8 +12,12 @@ import { IInstantiationService } from '../../platform/instantiation/common/insta
 import { WelcomeScreen } from './components/welcomeScreen.js';
 import { PromptInput } from './components/promptInput.js';
 import { ConversationView } from './components/conversationView.js';
-import { ProjectWorkspacePanel } from './components/projectWorkspacePanel.js';
+import { ControlCenter } from './controlCenter/controlCenter.js';
+import { WorkspaceTab } from './controlCenter/workspaceTab.js';
+import { ActivityTab } from './controlCenter/activityTab.js';
+import { HistoryTab } from './controlCenter/historyTab.js';
 import { IOminaiLoggerService } from '../common/ominaiServices.js';
+import { OminaiSettingsWindow } from './settingsWindow/ominaiSettingsWindow.js';
 
 export class OminaiWorkspaceOverlay extends Disposable {
 	private readonly container: HTMLElement;
@@ -22,6 +26,7 @@ export class OminaiWorkspaceOverlay extends Disposable {
 	private welcomeScreen: WelcomeScreen;
 	private promptInput: PromptInput;
 	private conversationView: ConversationView;
+	private settingsWindowInstance = this._register(new MutableDisposable<OminaiSettingsWindow>());
 
 	constructor(
 		@IWorkbenchLayoutService private readonly layoutService: IWorkbenchLayoutService,
@@ -38,15 +43,57 @@ export class OminaiWorkspaceOverlay extends Disposable {
 		this.conversationView = this._register(this.instantiationService.createInstance(ConversationView, this.chatArea));
 		this.welcomeScreen = this._register(this.instantiationService.createInstance(WelcomeScreen, this.chatArea));
 		this.promptInput = this._register(this.instantiationService.createInstance(PromptInput, this.chatArea));
-		this._register(this.instantiationService.createInstance(ProjectWorkspacePanel, rightPanel));
+		const controlCenter = this._register(this.instantiationService.createInstance(ControlCenter, rightPanel));
+
+		// Mount tab content components into their respective panes using DI
+		const workspacePane = controlCenter.getTabPane('workspace');
+		if (workspacePane) {
+			this._register(this.instantiationService.createInstance(WorkspaceTab, workspacePane));
+		}
+
+		const activityPane = controlCenter.getTabPane('activity');
+		if (activityPane) {
+			this._register(this.instantiationService.createInstance(ActivityTab, activityPane));
+		}
+
+		const historyPane = controlCenter.getTabPane('history');
+		if (historyPane) {
+			this._register(this.instantiationService.createInstance(HistoryTab, historyPane));
+		}
+
+		this._register(controlCenter.onDidClickSettings(() => {
+			this._openSettingsWindow();
+		}));
 
 		this._registerListeners();
 		this.logger.trace('OminaiWorkspaceOverlay initialized.');
 	}
 
+	private _openSettingsWindow(): void {
+		try {
+			// Dispose previous instance if exists (singleton guard)
+			this.settingsWindowInstance.clear();
+			const win = this.instantiationService.createInstance(OminaiSettingsWindow, this.container);
+			this.settingsWindowInstance.value = win;
+		} catch (error: any) {
+			this.logger.error('Failed to open settings window', error);
+		}
+	}
+
 	private _registerListeners(): void {
 		// When the user submits a prompt
 		this._register(this.promptInput.onDidSubmitPrompt((text) => {
+			this._onPromptSubmitted(text);
+		}));
+
+		// When a welcome screen suggestion is clicked
+		this._register(this.welcomeScreen.onDidClickSuggestion((text) => {
+			this._onPromptSubmitted(text);
+		}));
+	}
+
+	private _onPromptSubmitted(text: string): void {
+		try {
 			this.welcomeScreen.hide();
 			this.conversationView.show();
 			this.promptInput.animateToBottom();
@@ -57,18 +104,38 @@ export class OminaiWorkspaceOverlay extends Disposable {
 				content: text
 			});
 
-			// Mock: Add Assistant message slightly delayed
-			setTimeout(() => {
+			// Mock: Add Assistant message with disposable timeout
+			const timeoutHandle = setTimeout(() => {
+				if (!this._store.isDisposed) {
+					this.conversationView.addMessage({
+						role: 'assistant',
+						content: 'I am analyzing your request and beginning the execution plan.',
+						showExecutionPanel: true
+					});
+				}
+			}, 500);
+			// Clean up timeout on dispose
+			this._register({
+				dispose: () => clearTimeout(timeoutHandle)
+			});
+		} catch (error: any) {
+			this.logger.error('Failed to process prompt submission', error);
+			try {
 				this.conversationView.addMessage({
 					role: 'assistant',
-					content: 'I am analyzing your request and beginning the execution plan.',
-					showExecutionPanel: true
+					content: 'An error occurred while processing your request. Please try again.'
 				});
-			}, 500);
-		}));
+			} catch {
+				// Last-resort fallback — nothing we can do
+			}
+		}
 	}
 
 	public mount(): void {
+		if (this.container.parentElement) {
+			return; // already mounted — guard against duplicates
+		}
+
 		const editorContainer = this.layoutService.getContainer(mainWindow, Parts.EDITOR_PART);
 		if (editorContainer) {
 			editorContainer.appendChild(this.container);

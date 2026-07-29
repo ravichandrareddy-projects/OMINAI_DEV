@@ -35,15 +35,22 @@
 	position: relative;
 }
 
-.ominai-project-workspace-panel {
+.ominai-tab-content {
+	flex: 1;
 	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ominai-tab-pane {
+	display: none;
 	flex-direction: column;
 	width: 100%;
 	height: 100%;
 }
 
-.ominai-project-workspace-panel.collapsed {
-	display: none;
+.ominai-tab-pane.active {
+	display: flex;
 }
 
 .ominai-panel-header {
@@ -894,7 +901,1755 @@
 	outline: 1px solid var(--vscode-focusBorder);
 }
 
+/* ---------------------------------------------------------------------------------------------
+ *  Control Center (Right Sidebar Tabbed Panel)
+ * -------------------------------------------------------------------------------------------- */
+.ominai-control-center {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.ominai-control-center.collapsed {
+	display: none;
+}
+
+.ominai-tab-navigation {
+	display: flex;
+	align-items: center;
+	border-bottom: 1px solid var(--vscode-widget-border);
+	padding: 0 8px;
+	height: 40px;
+	flex-shrink: 0;
+	gap: 2px;
+}
+
+.ominai-tab-spacer {
+	flex: 0 0 0;
+}
+
+.ominai-tab-spacer.fill {
+	flex: 1;
+}
+
+.ominai-tab-btn {
+	background: transparent;
+	border: none;
+	color: var(--vscode-icon-foreground);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 10px;
+	border-radius: 6px 6px 0 0;
+	font-size: 11px;
+	font-weight: 500;
+	transition: background 0.15s ease, color 0.15s ease;
+	border-bottom: 2px solid transparent;
+	position: relative;
+	top: 1px;
+}
+
+.ominai-tab-btn:hover {
+	background: var(--vscode-toolbar-hoverBackground);
+	color: var(--vscode-foreground);
+}
+
+.ominai-tab-btn.active {
+	color: var(--vscode-foreground);
+	border-bottom-color: var(--omini-accent);
+}
+
+.ominai-tab-btn .codicon {
+	font-size: 14px;
+}
+
+.ominai-tab-label {
+	font-size: 11px;
+}
+
+.ominai-control-center-collapse {
+	position: absolute;
+	bottom: 8px;
+	right: 8px;
+	background: transparent;
+	border: none;
+	color: var(--vscode-icon-foreground);
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	z-index: 5;
+}
+
+.ominai-control-center-collapse:hover {
+	background: var(--vscode-toolbar-hoverBackground);
+}
+
+.ominai-control-center-settings {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background: transparent;
+	border: none;
+	color: var(--vscode-icon-foreground);
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	z-index: 5;
+}
+
+.ominai-control-center-settings:hover {
+	background: var(--vscode-toolbar-hoverBackground);
+	color: var(--vscode-foreground);
+}
+
+/* Restore button (reuses .ominai-restore-btn from existing styles) */
+
+/* ---------------------------------------------------------------------------------------------
+ *  Workspace Tab
+ * -------------------------------------------------------------------------------------------- */
+.ominai-workspace-tab {
+	flex: 1;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ominai-exec-running { color: var(--vscode-testing-iconQueued); }
+.ominai-exec-completed { color: var(--vscode-testing-iconPassed); }
+.ominai-exec-error { color: var(--vscode-problemsErrorIcon-foreground); }
+.ominai-exec-idle { color: var(--vscode-icon-foreground); }
+
+.ominai-browser-active { color: var(--vscode-testing-iconPassed); }
+
+/* ---------------------------------------------------------------------------------------------
+ *  Activity Tab (Execution Timeline)
+ * -------------------------------------------------------------------------------------------- */
+.ominai-activity-tab {
+	flex: 1;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ominai-activity-timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ominai-activity-step {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-radius: 6px;
+	font-size: 13px;
+	cursor: default;
+	transition: background 0.1s ease;
+}
+
+.ominai-activity-step:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-activity-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.ominai-activity-pending { background: var(--vscode-icon-foreground); opacity: 0.3; }
+.ominai-activity-running { background: var(--vscode-testing-iconQueued); box-shadow: 0 0 6px var(--vscode-testing-iconQueued); }
+.ominai-activity-completed { background: var(--vscode-testing-iconPassed); }
+.ominai-activity-failed { background: var(--vscode-problemsErrorIcon-foreground); }
+
+.ominai-activity-label {
+	flex: 1;
+	color: var(--vscode-foreground);
+}
+
+.ominai-activity-time {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ *  History Tab
+ * -------------------------------------------------------------------------------------------- */
+.ominai-history-tab {
+	flex: 1;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ominai-history-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.ominai-history-card {
+	padding: 12px;
+	border: 1px solid var(--vscode-widget-border);
+	border-radius: 8px;
+	cursor: pointer;
+	transition: border-color 0.15s ease, background 0.15s ease;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.ominai-history-card:hover {
+	border-color: var(--vscode-focusBorder);
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-history-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.ominai-history-name {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ominai-history-badge {
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 10px;
+	flex-shrink: 0;
+}
+
+.ominai-history-badge.status-completed {
+	background: var(--vscode-testing-iconPassed);
+	color: var(--vscode-editor-background);
+}
+
+.ominai-history-badge.status-failed {
+	background: var(--vscode-problemsErrorIcon-foreground);
+	color: var(--vscode-editor-background);
+}
+
+.ominai-history-badge.status-interrupted {
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+}
+
+.ominai-history-details {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.ominai-history-detail {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+}
+
+.ominai-history-detail .codicon {
+	font-size: 12px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ *  Settings Tab
+ * -------------------------------------------------------------------------------------------- */
+.ominai-settings-tab {
+	flex: 1;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ominai-settings-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.ominai-settings-category-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ominai-settings-category-btn {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	background: transparent;
+	border: none;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	border-radius: 6px;
+	font-size: 13px;
+	width: 100%;
+	text-align: left;
+	transition: background 0.1s ease;
+}
+
+.ominai-settings-category-btn:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-settings-category-btn .codicon {
+	font-size: 16px;
+	color: var(--vscode-icon-foreground);
+	flex-shrink: 0;
+}
+
+.ominai-settings-category-label {
+	flex: 1;
+}
+
+.ominai-settings-category-arrow {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+}
+
+.ominai-settings-category-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--vscode-widget-border);
+	margin-bottom: 8px;
+}
+
+.ominai-settings-back-btn {
+	background: transparent;
+	border: none;
+	color: var(--vscode-icon-foreground);
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+}
+
+.ominai-settings-back-btn:hover {
+	background: var(--vscode-toolbar-hoverBackground);
+	color: var(--vscode-foreground);
+}
+
+.ominai-settings-category-title {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+}
+
+.ominai-settings-pane {
+	flex: 1;
+	overflow-y: auto;
+}
+
+/* Settings rows (shared across all categories) */
+.ominai-settings-group {
+	display: flex;
+	flex-direction: column;
+}
+
+.ominai-settings-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.ominai-settings-row:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-settings-row > .codicon {
+	font-size: 16px;
+	color: var(--vscode-icon-foreground);
+	flex-shrink: 0;
+}
+
+.ominai-settings-row-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.ominai-settings-row-label {
+	font-size: 13px;
+	color: var(--vscode-foreground);
+}
+
+.ominai-settings-row-desc {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ominai-settings-action-arrow {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ *  Models Settings (Provider Cards)
+ * -------------------------------------------------------------------------------------------- */
+.ominai-provider-card {
+	padding: 12px;
+	margin: 0 4px 8px 4px;
+	border: 1px solid var(--vscode-widget-border);
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	transition: border-color 0.15s ease;
+}
+
+.ominai-provider-card:hover {
+	border-color: var(--vscode-focusBorder);
+}
+
+.ominai-provider-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.ominai-provider-name {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+}
+
+.ominai-provider-badge {
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 10px;
+	flex-shrink: 0;
+}
+
+.ominai-provider-badge.status-connected {
+	background: var(--vscode-testing-iconPassed);
+	color: var(--vscode-editor-background);
+}
+
+.ominai-provider-badge.status-disconnected {
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+}
+
+.ominai-provider-badge.status-unconfigured {
+	background: transparent;
+	color: var(--vscode-descriptionForeground);
+	border: 1px solid var(--vscode-widget-border);
+}
+
+.ominai-provider-details {
+	display: flex;
+	gap: 12px;
+}
+
+.ominai-provider-detail {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+}
+
+.ominai-provider-detail .codicon {
+	font-size: 12px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ *  Labs Settings
+ * -------------------------------------------------------------------------------------------- */
+.ominai-labs-row {
+	opacity: 0.7;
+	cursor: default;
+}
+
+.ominai-labs-row:hover {
+	background: transparent !important;
+}
+
+.ominai-labs-coming-soon {
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+	flex-shrink: 0;
+}
+
 @keyframes ominai-spin {
 	from { transform: rotate(0deg); }
 	to { transform: rotate(360deg); }
 }
+
+/* ---------------------------------------------------------------------------------------------
+ *  Model Selector Dropdown
+ * -------------------------------------------------------------------------------------------- */
+
+.ominai-model-selector-dropdown {
+	position: absolute;
+	bottom: 100%;
+	right: 16px;
+	margin-bottom: 8px;
+	width: 320px;
+	max-height: 400px;
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-editorWidget-border);
+	border-radius: 6px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+	display: flex;
+	flex-direction: column;
+	z-index: 1000;
+	overflow: hidden;
+}
+
+.ominai-model-search-wrapper {
+	display: flex;
+	align-items: center;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--vscode-editorWidget-border);
+	background: var(--vscode-editorWidget-background);
+}
+
+.ominai-model-search-wrapper .codicon {
+	color: var(--vscode-input-placeholderForeground);
+	margin-right: 8px;
+	font-size: 14px;
+}
+
+.ominai-model-search-input {
+	flex: 1;
+	background: transparent;
+	border: none;
+	color: var(--vscode-input-foreground);
+	font-size: 13px;
+	outline: none;
+}
+
+.ominai-model-search-input::placeholder {
+	color: var(--vscode-input-placeholderForeground);
+}
+
+.ominai-model-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 8px 0;
+}
+
+.ominai-model-category-header {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: var(--vscode-descriptionForeground);
+	padding: 8px 12px 4px 12px;
+	letter-spacing: 0.5px;
+}
+
+.ominai-model-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 8px 12px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	transition: background 0.1s ease;
+}
+
+.ominai-model-item:hover,
+.ominai-model-item:focus {
+	background: var(--vscode-list-hoverBackground);
+	outline: none;
+}
+
+.ominai-model-item.active {
+	background: var(--vscode-list-activeSelectionBackground);
+	color: var(--vscode-list-activeSelectionForeground);
+}
+
+.ominai-model-item-left {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+	overflow: hidden;
+}
+
+.ominai-model-item-name {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--vscode-list-activeSelectionForeground);
+}
+
+.ominai-model-item:not(.active) .ominai-model-item-name {
+	color: var(--vscode-foreground);
+}
+
+.ominai-model-item-desc {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ominai-model-item.active .ominai-model-item-desc {
+	color: var(--vscode-list-activeSelectionForeground);
+	opacity: 0.8;
+}
+
+.ominai-model-item-right {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	margin-left: 8px;
+}
+
+.ominai-model-item-right .codicon {
+	font-size: 14px;
+}
+
+.ominai-model-no-results {
+	padding: 16px;
+	text-align: center;
+	color: var(--vscode-descriptionForeground);
+	font-size: 12px;
+}
+
+/* -----------------------------------------------------------------------
+ * Models Settings — Task Role Assignment UI
+ * --------------------------------------------------------------------- */
+
+.ominai-models-settings {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.ominai-models-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 16px 12px 16px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+	flex-shrink: 0;
+}
+
+.ominai-models-header-icon {
+	font-size: 22px;
+	line-height: 1;
+}
+
+.ominai-models-header-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+}
+
+.ominai-models-header-sub {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	margin-top: 2px;
+}
+
+.ominai-role-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 8px 0;
+}
+
+/* Role Row */
+.ominai-role-row {
+	border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.ominai-role-row-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 16px;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.ominai-role-row-header:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-role-row.expanded .ominai-role-row-header {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-role-row-left {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-shrink: 0;
+	min-width: 120px;
+}
+
+.ominai-role-icon {
+	font-size: 16px;
+	width: 22px;
+	text-align: center;
+	flex-shrink: 0;
+}
+
+.ominai-role-label-group {
+	display: flex;
+	flex-direction: column;
+}
+
+.ominai-role-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+	white-space: nowrap;
+}
+
+.ominai-role-desc {
+	display: none;
+	font-size: 10px;
+	color: var(--vscode-descriptionForeground);
+}
+
+/* Chips area */
+.ominai-role-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	flex: 1;
+	align-items: center;
+}
+
+.ominai-role-chip {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	background: var(--vscode-badge-background);
+	color: var(--vscode-badge-foreground);
+	white-space: nowrap;
+}
+
+.ominai-role-chip.primary {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	font-weight: 600;
+}
+
+.ominai-role-chip-empty {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	font-style: italic;
+}
+
+/* Right controls */
+.ominai-role-row-right {
+	flex-shrink: 0;
+}
+
+.ominai-role-add-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	background: transparent;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 4px;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s;
+}
+
+.ominai-role-add-btn:hover {
+	background: var(--vscode-button-background);
+	border-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+}
+
+/* Expanded Panel */
+.ominai-role-panel {
+	padding: 12px 16px;
+	background: var(--vscode-editor-background);
+	border-top: 1px solid var(--vscode-panel-border);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.ominai-role-panel-section-title {
+	font-size: 10px;
+	font-weight: 700;
+	color: var(--vscode-descriptionForeground);
+	letter-spacing: 0.8px;
+	text-transform: uppercase;
+	padding-top: 4px;
+}
+
+.ominai-role-panel-empty {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+	font-style: italic;
+	padding: 4px 0;
+}
+
+/* Assigned item row */
+.ominai-role-assigned-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.ominai-role-assigned-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 6px;
+	transition: border-color 0.1s;
+}
+
+.ominai-role-assigned-item:hover {
+	border-color: var(--vscode-focusBorder);
+}
+
+.ominai-role-star-btn {
+	display: flex;
+	align-items: center;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--vscode-descriptionForeground);
+	padding: 0;
+	font-size: 14px;
+	transition: color 0.15s;
+	flex-shrink: 0;
+}
+
+.ominai-role-star-btn:hover,
+.ominai-role-star-btn.active {
+	color: #f5a623;
+}
+
+.ominai-role-assigned-name-group {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex: 1;
+}
+
+.ominai-role-assigned-name {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--vscode-foreground);
+}
+
+.ominai-role-tier-badge {
+	font-size: 9px;
+	padding: 1px 5px;
+	border-radius: 3px;
+	text-transform: uppercase;
+	font-weight: 600;
+	letter-spacing: 0.5px;
+}
+
+.ominai-role-tier-badge.tier-top { background: rgba(99, 210, 95, 0.2); color: #63d25f; }
+.ominai-role-tier-badge.tier-china { background: rgba(255, 85, 85, 0.2); color: #ff5555; }
+.ominai-role-tier-badge.tier-coding { background: rgba(86, 156, 214, 0.2); color: #569cd6; }
+.ominai-role-tier-badge.tier-research { background: rgba(206, 145, 120, 0.2); color: #ce9178; }
+.ominai-role-tier-badge.tier-aggregator { background: rgba(197, 134, 192, 0.2); color: #c586c0; }
+.ominai-role-tier-badge.tier-local { background: rgba(106, 153, 85, 0.2); color: #6a9955; }
+.ominai-role-tier-badge.tier-creative { background: rgba(220, 185, 60, 0.2); color: #dcb93c; }
+.ominai-role-tier-badge.tier-personal { background: rgba(156, 220, 254, 0.2); color: #9cdcfe; }
+
+.ominai-role-caps {
+	display: flex;
+	gap: 4px;
+	flex-shrink: 0;
+}
+
+.ominai-role-cap {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	font-size: 10px;
+	color: var(--vscode-descriptionForeground);
+	padding: 2px 5px;
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 4px;
+}
+
+.ominai-role-cap .codicon { font-size: 11px; }
+
+.ominai-role-remove-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--vscode-descriptionForeground);
+	padding: 2px;
+	border-radius: 3px;
+	transition: color 0.15s, background 0.15s;
+	flex-shrink: 0;
+}
+
+.ominai-role-remove-btn:hover {
+	color: #f44747;
+	background: rgba(244, 71, 71, 0.1);
+}
+
+/* Search + picker */
+.ominai-role-search-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	background: var(--vscode-input-background);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 4px;
+}
+
+.ominai-role-search-wrapper .codicon {
+	color: var(--vscode-input-placeholderForeground);
+	font-size: 13px;
+}
+
+.ominai-role-search-input {
+	flex: 1;
+	background: transparent;
+	border: none;
+	color: var(--vscode-input-foreground);
+	font-size: 12px;
+	outline: none;
+}
+
+.ominai-role-search-input::placeholder {
+	color: var(--vscode-input-placeholderForeground);
+}
+
+.ominai-role-picker-list {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	max-height: 180px;
+	overflow-y: auto;
+}
+
+.ominai-role-picker-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 10px;
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 5px;
+	transition: border-color 0.1s;
+}
+
+.ominai-role-picker-item:hover {
+	border-color: var(--vscode-focusBorder);
+}
+
+.ominai-role-picker-left {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.ominai-role-picker-name {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--vscode-foreground);
+}
+
+.ominai-role-picker-desc {
+	font-size: 10px;
+	color: var(--vscode-descriptionForeground);
+}
+
+.ominai-role-picker-add {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 4px;
+	font-size: 11px;
+	cursor: pointer;
+	transition: opacity 0.15s;
+	flex-shrink: 0;
+}
+
+.ominai-role-picker-add:hover {
+	opacity: 0.85;
+}
+
+/* ==========================================================================
+ * OMINAI Settings Window — Full-screen overlay (like Antigravity/Cursor)
+ * ======================================================================== */
+
+.ominai-settings-window-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+	z-index: 2000;
+}
+
+.ominai-settings-window {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: min(1100px, 96vw);
+	height: min(760px, 92vh);
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 12px;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+	display: flex;
+	flex-direction: column;
+	z-index: 2001;
+	overflow: hidden;
+}
+
+/* Title bar */
+.ominai-settings-titlebar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 20px;
+	height: 48px;
+	background: var(--vscode-titleBar-activeBackground);
+	border-bottom: 1px solid var(--vscode-panel-border);
+	flex-shrink: 0;
+	user-select: none;
+}
+
+.ominai-settings-titlebar-text {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--vscode-titleBar-activeForeground);
+	letter-spacing: 0.1px;
+}
+
+.ominai-settings-titlebar-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	transition: background 0.2s ease, color 0.2s ease;
+	opacity: 0.7;
+}
+
+.ominai-settings-titlebar-close:hover {
+	background: rgba(244, 71, 71, 0.15);
+	color: #f44747;
+	opacity: 1;
+}
+
+/* Body */
+.ominai-settings-window-body {
+	display: flex;
+	flex: 1;
+	overflow: hidden;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+
+.ominai-settings-sidebar {
+	width: 220px;
+	flex-shrink: 0;
+	background: var(--vscode-sideBar-background);
+	border-right: 1px solid var(--vscode-panel-border);
+	overflow-y: auto;
+	scrollbar-width: none;
+	padding: 12px 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.ominai-settings-sidebar::-webkit-scrollbar {
+	display: none;
+}
+
+.ominai-settings-sidebar-section-title {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	color: var(--vscode-sideBarSectionHeader-foreground, var(--vscode-descriptionForeground));
+	padding: 8px 14px 4px 14px;
+}
+
+.ominai-settings-sidebar-btn {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: calc(100% - 16px);
+	margin: 1px 8px;
+	padding: 8px 10px;
+	background: transparent;
+	border: none;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	text-align: left;
+	font-size: 13px;
+	border-radius: 6px;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ominai-settings-sidebar-btn:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-settings-sidebar-btn.active {
+	background: var(--vscode-list-activeSelectionBackground);
+	color: var(--vscode-list-activeSelectionForeground);
+	font-weight: 500;
+}
+
+.ominai-settings-sidebar-btn .codicon {
+	font-size: 15px;
+	flex-shrink: 0;
+}
+
+.ominai-settings-sidebar-label {
+	font-size: 13px;
+}
+
+/* Workspace buttons */
+.ominai-settings-workspace-btn {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 5px 14px;
+	background: transparent;
+	border: none;
+	color: var(--vscode-descriptionForeground);
+	cursor: pointer;
+	text-align: left;
+	font-size: 12px;
+	transition: background 0.1s;
+}
+
+.ominai-settings-workspace-btn:hover {
+	background: var(--vscode-list-hoverBackground);
+	color: var(--vscode-foreground);
+}
+
+.ominai-settings-workspace-btn .codicon {
+	font-size: 13px;
+	flex-shrink: 0;
+	opacity: 0.6;
+}
+
+.ominai-settings-workspace-label {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* ── Main Content ──────────────────────────────────────────────────────────── */
+
+.ominai-settings-main {
+	flex: 1;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.ominai-settings-content-scroll {
+	flex: 1;
+	overflow-y: auto;
+	scrollbar-width: none;
+	padding: 32px 40px;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.ominai-settings-content-scroll::-webkit-scrollbar {
+	display: none;
+}
+
+/* Section header */
+.ominai-settings-section-header {
+	margin-bottom: 20px;
+}
+
+.ominai-settings-section-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+	margin-bottom: 4px;
+}
+
+.ominai-settings-section-sub {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+	line-height: 1.5;
+}
+
+/* Divider */
+.ominai-settings-divider {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--vscode-descriptionForeground);
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	padding: 16px 0 8px 0;
+	border-top: 1px solid var(--vscode-panel-border);
+	margin-top: 8px;
+}
+
+/* ── Permissions: Cards ────────────────────────────────────────────────────── */
+
+.ominai-permissions-cards {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+	margin-bottom: 8px;
+}
+
+.ominai-permissions-card {
+	padding: 16px 18px;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	cursor: pointer;
+	transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+	background: var(--vscode-editorWidget-background);
+	outline: none;
+}
+
+.ominai-permissions-card:hover {
+	border-color: var(--vscode-focusBorder);
+	box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.ominai-permissions-card.active {
+	border-color: var(--vscode-button-background);
+	background: color-mix(in srgb, var(--vscode-button-background) 12%, transparent);
+	box-shadow: 0 0 0 1px var(--vscode-button-background);
+}
+
+.ominai-permissions-card-title {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+	margin-bottom: 6px;
+}
+
+.ominai-permissions-card-desc {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	line-height: 1.55;
+}
+
+/* ── Row Items (toggle + dropdown) ─────────────────────────────────────────── */
+
+.ominai-settings-row-item {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 12px 0;
+	border-bottom: 1px solid color-mix(in srgb, var(--vscode-panel-border) 50%, transparent);
+}
+
+.ominai-settings-row-item:last-child {
+	border-bottom: none;
+}
+
+.ominai-settings-row-item-left {
+	flex: 1;
+}
+
+.ominai-settings-row-item-title {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--vscode-foreground);
+	margin-bottom: 3px;
+}
+
+.ominai-settings-row-item-desc {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+	line-height: 1.5;
+	white-space: pre-line;
+}
+
+/* Toggle switch */
+.ominai-toggle {
+	flex-shrink: 0;
+	width: 42px;
+	height: 24px;
+	border-radius: 12px;
+	background: var(--vscode-input-border);
+	border: none;
+	cursor: pointer;
+	position: relative;
+	transition: background 0.25s ease;
+	margin-top: 2px;
+	outline: none;
+}
+
+.ominai-toggle:focus-visible {
+	outline: 2px solid var(--vscode-focusBorder);
+	outline-offset: 2px;
+}
+
+.ominai-toggle.on {
+	background: var(--vscode-button-background);
+}
+
+.ominai-toggle-thumb {
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: white;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+	transition: left 0.25s ease;
+	pointer-events: none;
+}
+
+.ominai-toggle.on .ominai-toggle-thumb {
+	left: 21px;
+}
+
+/* Dropdown select */
+.ominai-settings-select {
+	flex-shrink: 0;
+	background: var(--vscode-dropdown-background);
+	color: var(--vscode-dropdown-foreground);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 12px;
+	cursor: pointer;
+	min-width: 150px;
+	margin-top: 2px;
+	transition: border-color 0.15s ease;
+	outline: none;
+}
+
+.ominai-settings-select:focus {
+	border-color: var(--vscode-focusBorder);
+}
+
+/* ── Account ──────────────────────────────────────────────────────────────── */
+
+.ominai-settings-profile-card {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 16px;
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	margin-bottom: 8px;
+}
+
+.ominai-settings-avatar {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 20px;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.ominai-settings-profile-info {
+	flex: 1;
+}
+
+.ominai-settings-profile-name {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+}
+
+.ominai-settings-profile-email {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+	margin-top: 2px;
+}
+
+.ominai-settings-profile-edit {
+	padding: 7px 16px;
+	background: transparent;
+	border: 1px solid var(--vscode-button-border, var(--vscode-panel-border));
+	border-radius: 6px;
+	color: var(--vscode-foreground);
+	font-size: 12px;
+	cursor: pointer;
+	transition: background 0.2s ease, border-color 0.2s ease;
+	outline: none;
+}
+
+.ominai-settings-profile-edit:hover {
+	background: var(--vscode-list-hoverBackground);
+	border-color: var(--vscode-focusBorder);
+}
+
+/* API Key rows */
+.ominai-settings-api-key-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 0;
+	border-bottom: 1px solid color-mix(in srgb, var(--vscode-panel-border) 50%, transparent);
+}
+
+.ominai-settings-api-key-label {
+	font-size: 13px;
+	color: var(--vscode-foreground);
+	width: 120px;
+	flex-shrink: 0;
+}
+
+.ominai-settings-api-key-input {
+	flex: 1;
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 4px;
+	padding: 4px 8px;
+	font-size: 12px;
+	font-family: monospace;
+}
+
+.ominai-settings-api-key-edit {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background: transparent;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 6px;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: background 0.15s ease, border-color 0.15s ease;
+	outline: none;
+}
+
+.ominai-settings-api-key-edit:hover {
+	background: var(--vscode-list-hoverBackground);
+	border-color: var(--vscode-focusBorder);
+}
+
+.ominai-settings-add-key-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 14px;
+	padding: 8px 16px;
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 6px;
+	font-size: 12px;
+	cursor: pointer;
+	width: fit-content;
+	transition: opacity 0.15s ease;
+	outline: none;
+}
+
+.ominai-settings-add-key-btn:hover {
+	opacity: 0.85;
+}
+
+/* Textarea */
+.ominai-settings-textarea {
+	width: 100%;
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 4px;
+	padding: 10px 12px;
+	font-size: 12px;
+	resize: vertical;
+	box-sizing: border-box;
+	font-family: inherit;
+	line-height: 1.5;
+}
+
+.ominai-settings-textarea:focus {
+	outline: 1px solid var(--vscode-focusBorder);
+}
+
+/* Settings placeholder in tab pane (when settings tab is selected) */
+.ominai-settings-placeholder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	gap: 8px;
+	opacity: 0.5;
+}
+
+.ominai-settings-placeholder-icon {
+	font-size: 28px;
+}
+
+.ominai-settings-placeholder-text {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ *  Quick Settings (Control Center Inline)
+ * -------------------------------------------------------------------------------------------- */
+
+.ominai-quick-settings {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding: 12px;
+	gap: 4px;
+}
+
+.ominai-quick-settings-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 4px 12px 4px;
+	border-bottom: 1px solid var(--vscode-widget-border);
+	margin-bottom: 8px;
+}
+
+.ominai-quick-settings-header .codicon {
+	font-size: 16px;
+	color: var(--vscode-icon-foreground);
+}
+
+.ominai-quick-settings-header-text {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+}
+
+.ominai-quick-settings-group {
+	display: flex;
+	flex-direction: column;
+}
+
+.ominai-quick-settings-group-title {
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--vscode-descriptionForeground);
+	padding: 8px 4px 4px 4px;
+}
+
+.ominai-quick-settings-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 4px;
+	border-radius: 4px;
+	transition: background 0.1s ease;
+}
+
+.ominai-quick-settings-row:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.ominai-quick-settings-row > .codicon {
+	font-size: 14px;
+	color: var(--vscode-icon-foreground);
+	flex-shrink: 0;
+}
+
+.ominai-quick-settings-row-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.ominai-quick-settings-row-label {
+	font-size: 12px;
+	color: var(--vscode-foreground);
+}
+
+.ominai-quick-settings-row-value {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground);
+}
+
+.ominai-quick-settings-row-action {
+	font-size: 11px;
+	color: var(--vscode-textLink-foreground);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+.ominai-quick-settings-row-action:hover {
+	background: var(--vscode-toolbar-hoverBackground);
+}
+
+.ominai-quick-settings-spacer {
+	flex: 1;
+}
+
+.ominai-quick-settings-full-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 14px;
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	margin-top: 8px;
+	transition: opacity 0.15s;
+}
+
+.ominai-quick-settings-full-btn:hover {
+	opacity: 0.85;
+}
+
+/* Quick toggle switch (smaller variant) */
+.ominai-quick-toggle {
+	flex-shrink: 0;
+	width: 32px;
+	height: 18px;
+	border-radius: 9px;
+	background: var(--vscode-input-border);
+	border: none;
+	cursor: pointer;
+	position: relative;
+	transition: background 0.2s;
+}
+
+.ominai-quick-toggle.on {
+	background: var(--vscode-button-background);
+}
+
+.ominai-quick-toggle-thumb {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: white;
+	transition: left 0.2s;
+	pointer-events: none;
+}
+
+.ominai-quick-toggle.on .ominai-quick-toggle-thumb {
+	left: 16px;
+}
+
+/* Labs title row (icon + label + badge inline) */
+.ominai-settings-row-item-title-labs {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 4px;
+}
+
+.ominai-labs-icon {
+	font-size: 14px;
+	color: var(--vscode-icon-foreground);
+	flex-shrink: 0;
+	opacity: 0.7;
+}
+
+/* Labs toggle (disabled appearance) */
+.ominai-toggle.labs-toggle {
+	cursor: default;
+	opacity: 0.5;
+	background: var(--vscode-input-border) !important;
+}
+
+/* Text input field (Workspace ignored paths) */
+.ominai-settings-text-input {
+	width: 100%;
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 4px;
+	padding: 8px 10px;
+	font-size: 12px;
+	font-family: inherit;
+	box-sizing: border-box;
+	margin: 4px 0 8px 0;
+	outline: none;
+}
+
+.ominai-settings-text-input:focus {
+	border-color: var(--vscode-focusBorder);
+}
+
+

@@ -5,10 +5,14 @@
 
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { $, append, addDisposableListener, EventType } from '../../../base/browser/dom.js';
+import { Emitter, Event } from '../../../base/common/event.js';
 
 export class WelcomeScreen extends Disposable {
 	private readonly container: HTMLElement;
 	private readonly suggestionsGrid: HTMLElement;
+
+	private readonly _onDidClickSuggestion = this._register(new Emitter<string>());
+	readonly onDidClickSuggestion: Event<string> = this._onDidClickSuggestion.event;
 
 	constructor(parent: HTMLElement) {
 		super();
@@ -52,21 +56,30 @@ export class WelcomeScreen extends Disposable {
 		card.tabIndex = 0;
 		card.setAttribute('role', 'button');
 		card.setAttribute('aria-label', `Action: ${title}. ${desc}`);
-		
+
 		const iconContainer = append(card, $('div.ominai-action-card-icon'));
 		append(iconContainer, $(`span.codicon.${iconClass}`));
 
 		append(card, $('div.ominai-action-card-title')).textContent = title;
 		append(card, $('div.ominai-action-card-desc')).textContent = desc;
 
-		this._register(addDisposableListener(card, EventType.CLICK, () => {}));
-		this._register(addDisposableListener(card, EventType.KEY_DOWN, (e) => {}));
+		this._register(addDisposableListener(card, EventType.CLICK, () => {
+			this._onDidClickSuggestion.fire(`I want to ${title.toLowerCase()}`);
+		}));
+		this._register(addDisposableListener(card, EventType.KEY_DOWN, (e: KeyboardEvent) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				this._onDidClickSuggestion.fire(`I want to ${title.toLowerCase()}`);
+			}
+		}));
 	}
 
 	private _createChip(parent: HTMLElement, text: string): void {
 		const chip = append(parent, $('button.ominai-suggestion-chip'));
 		chip.textContent = text;
-		this._register(addDisposableListener(chip, EventType.CLICK, () => {}));
+		this._register(addDisposableListener(chip, EventType.CLICK, () => {
+			this._onDidClickSuggestion.fire(text);
+		}));
 	}
 
 	public hide(): void {

@@ -3,25 +3,31 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Disposable } from '../../../base/common/lifecycle.js';
+import { Disposable, MutableDisposable } from '../../../base/common/lifecycle.js';
 import { $, append, addDisposableListener, EventType } from '../../../base/browser/dom.js';
 import { Emitter, Event } from '../../../base/common/event.js';
+import { IOminaiProviderService } from '../../common/ominaiServices.js';
+import { ModelSelectorWidget } from './modelSelector.js';
 
 export class PromptInput extends Disposable {
 	private readonly wrapper: HTMLElement;
 	private readonly container: HTMLElement;
 	private readonly textarea: HTMLTextAreaElement;
 	private readonly sendBtn: HTMLButtonElement;
-
-	private readonly _onDidSubmitFirstPrompt = this._register(new Emitter<string>());
-	public readonly onDidSubmitFirstPrompt: Event<string> = this._onDidSubmitFirstPrompt.event;
+	private readonly modelSelectorLabel: HTMLElement;
+	private readonly modelSelectorWidget: ModelSelectorWidget;
 
 	private readonly _onDidSubmitPrompt = this._register(new Emitter<string>());
 	public readonly onDidSubmitPrompt: Event<string> = this._onDidSubmitPrompt.event;
 
 	private isFirstPrompt = true;
+	private isSubmitting = false;
+	private readonly submitThrottle = this._register(new MutableDisposable());
 
-	constructor(parent: HTMLElement) {
+	constructor(
+		parent: HTMLElement,
+		@IOminaiProviderService private readonly providerService: IOminaiProviderService
+	) {
 		super();
 		this.wrapper = append(parent, $('div.ominai-prompt-wrapper.centered'));
 		this.container = append(this.wrapper, $('div.ominai-prompt-container'));
@@ -44,9 +50,13 @@ export class PromptInput extends Disposable {
 
 		// Right controls
 		const rightControls = append(controlsBar, $('div.ominai-prompt-controls-right'));
-		const modelSelector = append(rightControls, $('button.ominai-prompt-btn.model-selector'));
-		append(modelSelector, $('span')).textContent = 'Claude 3.5 Sonnet';
-		append(modelSelector, $('span.codicon.codicon-chevron-down'));
+		const modelSelectorBtn = append(rightControls, $('button.ominai-prompt-btn.model-selector'));
+		
+		this.modelSelectorLabel = append(modelSelectorBtn, $('span'));
+		this.modelSelectorLabel.textContent = this.providerService.getActiveProvider()?.name || 'Select Model';
+		append(modelSelectorBtn, $('span.codicon.codicon-chevron-down'));
+
+		this.modelSelectorWidget = this._register(new ModelSelectorWidget(this.wrapper, this.providerService));
 
 		this.sendBtn = append(rightControls, $('button.ominai-prompt-send')) as HTMLButtonElement;
 		append(this.sendBtn, $('span.codicon.codicon-arrow-up'));
@@ -56,6 +66,12 @@ export class PromptInput extends Disposable {
 		// Disclaimer
 		const disclaimer = append(this.wrapper, $('div.ominai-prompt-disclaimer'));
 		disclaimer.textContent = 'OMINAI can make mistakes. Please verify important information.';
+
+		// Register click on the button to toggle the dropdown
+		this._register(addDisposableListener(modelSelectorBtn, EventType.CLICK, (e) => {
+			e.stopPropagation();
+			this.modelSelectorWidget.toggle();
+		}));
 
 		this._registerListeners();
 	}
@@ -78,23 +94,43 @@ export class PromptInput extends Disposable {
 		this._register(addDisposableListener(this.sendBtn, EventType.CLICK, () => {
 			this._submit();
 		}));
+
+		this._register(this.providerService.onDidChangeActiveProvider(provider => {
+			this.modelSelectorLabel.textContent = provider.name;
+		}));
 	}
 
 	private _submit(): void {
+		if (this.isSubmitting) {
+			return; // debounce — ignore rapid submissions
+		}
+
 		const value = this.textarea.value.trim();
 		if (!value) {
 			return;
 		}
 
+		this.isSubmitting = true;
+		this.sendBtn.disabled = true;
+
 		if (this.isFirstPrompt) {
 			this.isFirstPrompt = false;
-			this._onDidSubmitFirstPrompt.fire(value);
 		}
-		
+
 		this._onDidSubmitPrompt.fire(value);
-		
+
 		this.textarea.value = '';
 		this.sendBtn.disabled = true;
+
+		// Re-enable after 300ms debounce window
+		this.submitThrottle.value = {
+			dispose: () => {
+				this.isSubmitting = false;
+			}
+		};
+		setTimeout(() => {
+			this.submitThrottle.clear();
+		}, 300);
 	}
 
 	public animateToBottom(): void {
