@@ -95,6 +95,27 @@ export class MockOminaiExecutionService extends Disposable implements IOminaiExe
 	getCurrentState(): ExecutionState {
 		return this.currentState;
 	}
+
+	/** Set execution state and notify listeners. */
+	setCurrentState(state: ExecutionState): void {
+		this.currentState = state;
+		this._onDidChangeExecutionState.fire();
+	}
+
+	/** Replace the step list and notify listeners. */
+	setSteps(steps: IExecutionStep[]): void {
+		this.steps = steps;
+		this._onDidChangeExecutionState.fire();
+	}
+
+	/** Convenience: update a single step's state by id. */
+	updateStepState(stepId: string, state: ExecutionState): void {
+		const step = this.steps.find(s => s.id === stepId);
+		if (step) {
+			step.state = state;
+			this._onDidChangeExecutionState.fire();
+		}
+	}
 }
 
 export class MockOminaiProjectService extends Disposable implements IOminaiProjectService {
@@ -125,6 +146,9 @@ export class MockOminaiLoggerService implements IOminaiLoggerService {
 export class MockOminaiBrowserService extends Disposable implements IOminaiBrowserService {
 	declare readonly _serviceBrand: undefined;
 
+	private readonly _onDidChangeBackendState = this._register(new Emitter<void>());
+	readonly onDidChangeBackendState: Event<void> = this._onDidChangeBackendState.event;
+
 	private _running = false;
 	private _mockDelayMs = 500;
 	private _mockProviderResponses = new Map<string, string>([
@@ -145,12 +169,14 @@ export class MockOminaiBrowserService extends Disposable implements IOminaiBrows
 		}
 		await this._delay();
 		this._running = true;
+		this._onDidChangeBackendState.fire();
 		console.info('[OMINAI BrowserMock] Backend started');
 		return adapterResultOk();
 	}
 
 	async stopBackend(): Promise<IAdapterResult> {
 		this._running = false;
+		this._onDidChangeBackendState.fire();
 		console.info('[OMINAI BrowserMock] Backend stopped');
 		return adapterResultOk();
 	}
