@@ -16,7 +16,7 @@ import { ControlCenter } from './controlCenter/controlCenter.js';
 import { WorkspaceTab } from './controlCenter/workspaceTab.js';
 import { ActivityTab } from './controlCenter/activityTab.js';
 import { HistoryTab } from './controlCenter/historyTab.js';
-import { IOminaiLoggerService } from '../common/ominaiServices.js';
+import { IOminaiLoggerService, IOminaiBrowserService } from '../common/ominaiServices.js';
 import { OminaiSettingsWindow } from './settingsWindow/ominaiSettingsWindow.js';
 
 export class OminaiWorkspaceOverlay extends Disposable {
@@ -32,6 +32,7 @@ export class OminaiWorkspaceOverlay extends Disposable {
 		@IWorkbenchLayoutService private readonly layoutService: IWorkbenchLayoutService,
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
 		@IOminaiLoggerService private readonly logger: IOminaiLoggerService,
+		@IOminaiBrowserService private readonly browserService: IOminaiBrowserService,
 	) {
 		super();
 		this.container = $('div.ominai-workspace-overlay.hidden');
@@ -92,7 +93,7 @@ export class OminaiWorkspaceOverlay extends Disposable {
 		}));
 	}
 
-	private _onPromptSubmitted(text: string): void {
+	private async _onPromptSubmitted(text: string): Promise<void> {
 		try {
 			this.welcomeScreen.hide();
 			this.conversationView.show();
@@ -104,20 +105,37 @@ export class OminaiWorkspaceOverlay extends Disposable {
 				content: text
 			});
 
-			// Mock: Add Assistant message with disposable timeout
-			const timeoutHandle = setTimeout(() => {
-				if (!this._store.isDisposed) {
+			// Show loading indicator
+			this.conversationView.showLoading();
+
+			// Auto-start backend if not running
+			if (!this.browserService.isRunning) {
+				const startResult = await this.browserService.startBackend();
+				if (!startResult.success) {
 					this.conversationView.addMessage({
 						role: 'assistant',
-						content: 'I am analyzing your request and beginning the execution plan.',
+						content: `Failed to start backend: ${startResult.error ?? 'unknown error'}`
+					});
+					return;
+				}
+			}
+
+			// Send prompt through the browser service
+			const result = await this.browserService.runSinglePrompt('anthropic-claude3', text);
+			if (!this._store.isDisposed) {
+				if (result.success) {
+					this.conversationView.addMessage({
+						role: 'assistant',
+						content: result.data ?? '(empty response)',
 						showExecutionPanel: true
 					});
+				} else {
+					this.conversationView.addMessage({
+						role: 'assistant',
+						content: `Error: ${result.error ?? 'unknown error'}`
+					});
 				}
-			}, 500);
-			// Clean up timeout on dispose
-			this._register({
-				dispose: () => clearTimeout(timeoutHandle)
-			});
+			}
 		} catch (error: any) {
 			this.logger.error('Failed to process prompt submission', error);
 			try {
