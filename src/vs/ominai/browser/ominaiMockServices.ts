@@ -5,7 +5,7 @@
 
 import { Emitter, Event } from '../../base/common/event.js';
 import { generateUuid } from '../../base/common/uuid.js';
-import { IOminaiSession, IOminaiSessionService, IOminaiExecutionService, ExecutionState, IExecutionStep, IOminaiProjectService, IOminaiLoggerService, IOminaiBrowserService } from '../common/ominaiServices.js';
+import { IOminaiSession, IOminaiSessionService, IOminaiExecutionService, ExecutionState, IExecutionStep, IOminaiProjectService, IOminaiLoggerService, IOminaiBrowserService, IAdapterResult, adapterResultOk } from '../common/ominaiServices.js';
 import { Disposable } from '../../base/common/lifecycle.js';
 
 export class MockOminaiSessionService extends Disposable implements IOminaiSessionService {
@@ -122,8 +122,55 @@ export class MockOminaiLoggerService implements IOminaiLoggerService {
 	error(message: string | Error, ...args: unknown[]): void { console.error(`[OMINAI Error]`, message, ...args); }
 }
 
-export class MockOminaiBrowserService implements IOminaiBrowserService {
+export class MockOminaiBrowserService extends Disposable implements IOminaiBrowserService {
 	declare readonly _serviceBrand: undefined;
+
+	private _running = false;
+	private _mockDelayMs = 500;
+	private _mockProviderResponses = new Map<string, string>([
+		['openai-gpt4', '[Mock OpenAI GPT-4] Response to: '],
+		['anthropic-claude3', '[Mock Claude 3] Response to: '],
+		['google-gemini', '[Mock Gemini] Response to: '],
+		['chatgpt', '[Mock ChatGPT] Response to: '],
+		['claude', '[Mock Claude] Response to: '],
+	]);
+
+	get isRunning(): boolean {
+		return this._running;
+	}
+
+	async startBackend(): Promise<IAdapterResult> {
+		if (this._running) {
+			return adapterResultOk('backend_already_running');
+		}
+		await this._delay();
+		this._running = true;
+		console.info('[OMINAI BrowserMock] Backend started');
+		return adapterResultOk();
+	}
+
+	async stopBackend(): Promise<IAdapterResult> {
+		this._running = false;
+		console.info('[OMINAI BrowserMock] Backend stopped');
+		return adapterResultOk();
+	}
+
+	async runSinglePrompt(providerId: string, prompt: string): Promise<IAdapterResult> {
+		if (!this._running) {
+			return { success: false, error: 'OMINAI Mode is off. Call startBackend() first.', errorCode: 'NOT_INITIALIZED' };
+		}
+		await this._delay();
+		const prefix = this._mockProviderResponses.get(providerId);
+		if (!prefix) {
+			return { success: false, error: `Unknown provider: ${providerId}`, errorCode: 'CRASH', data: prompt };
+		}
+		return adapterResultOk(`${prefix}${prompt}`);
+	}
+
+	private _delay(ms?: number): Promise<void> {
+		const t = ms ?? this._mockDelayMs;
+		return new Promise(resolve => setTimeout(resolve, t));
+	}
 }
 
 import { IOminaiProvider, IOminaiProviderService, ITaskRole } from '../common/ominaiServices.js';

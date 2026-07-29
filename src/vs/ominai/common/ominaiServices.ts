@@ -51,12 +51,62 @@ export interface IOminaiExecutionService {
 	getCurrentState(): ExecutionState;
 }
 
-// ── Browser Service (UI placeholder; real automation via browser-use) ──
+// ── Shared Backend Types (mirrors Python browser_adapter/base.py) ──
+
+export type ErrorCode =
+	| 'LOGIN_REQUIRED'
+	| 'SELECTOR_STALE'
+	| 'TIMEOUT'
+	| 'EMPTY_RESPONSE'
+	| 'FALSE_COMPLETE'
+	| 'CRASH'
+	| 'NOT_INITIALIZED';
+
+/**
+ * Uniform return type matching Python's AdapterResult dataclass.
+ * The Main Agent never has to special-case a provider's raw exceptions
+ * or return shapes — every backend call speaks IAdapterResult.
+ */
+export interface IAdapterResult {
+	readonly success: boolean;
+	readonly data?: string;
+	readonly error?: string;
+	readonly errorCode?: ErrorCode;
+}
+
+export function adapterResultOk(data?: string): IAdapterResult {
+	return { success: true, data };
+}
+
+export function adapterResultFail(
+	error: string,
+	code: ErrorCode = 'CRASH',
+	data?: string,
+): IAdapterResult {
+	return { success: false, error, errorCode: code, data };
+}
+
+// ── Browser Service (facade over Python browser-use backend) ──
 export const IOminaiBrowserService = createDecorator<IOminaiBrowserService>('ominaiBrowserService');
 
 export interface IOminaiBrowserService {
 	readonly _serviceBrand: undefined;
-	// Future: browser-use integration for Chrome automation
+
+	/** True while the backend is started and ready for prompts. */
+	readonly isRunning: boolean;
+
+	/** Bring the backend online (launches Chromium via browser-use). */
+	startBackend(): Promise<IAdapterResult>;
+
+	/** Shut the backend down cleanly (closes browser, flushes traces). */
+	stopBackend(): Promise<IAdapterResult>;
+
+	/**
+	 * Execute one provider cycle: send prompt, wait, return response.
+	 * @param providerId  Target provider, e.g. 'chatgpt' | 'claude' | 'gemini'
+	 * @param prompt      The prompt text to send
+	 */
+	runSinglePrompt(providerId: string, prompt: string): Promise<IAdapterResult>;
 }
 
 // ── Project Service ──
