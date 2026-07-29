@@ -5,6 +5,7 @@
 
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { $, append } from '../../../base/browser/dom.js';
+import { IOminaiExecutionService } from '../../common/ominaiServices.js';
 
 /**
  * A single step in the execution timeline.
@@ -48,6 +49,7 @@ export class ActivityTab extends Disposable {
 	constructor(
 		private readonly container: HTMLElement,
 		data: IActivityData = { steps: MOCK_TIMELINE },
+		@IOminaiExecutionService private readonly executionService: IOminaiExecutionService,
 	) {
 		super();
 		this.currentSteps = [...data.steps];
@@ -57,6 +59,25 @@ export class ActivityTab extends Disposable {
 		this.listEl = append(this.body, $('div.ominai-activity-timeline'));
 
 		this._buildSteps(this.currentSteps);
+
+		// Refresh on execution state changes
+		this._register(this.executionService.onDidChangeExecutionState(() => this._refreshFromService()));
+	}
+
+	/**
+	 * Pull the latest execution steps from the service and push them
+	 * into the timeline view.
+	 */
+	private _refreshFromService(): void {
+		const steps = this.executionService.getSteps().map(s => ({
+			id: s.id,
+			label: s.title,
+			state: s.state === 'idle' ? 'pending' as const
+				: s.state === 'running' ? 'running' as const
+				: s.state === 'completed' ? 'completed' as const
+				: 'failed' as const,
+		}));
+		this.update({ steps });
 	}
 
 	public update(data: IActivityData): void {

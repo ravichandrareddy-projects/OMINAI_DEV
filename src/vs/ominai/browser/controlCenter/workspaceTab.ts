@@ -5,6 +5,7 @@
 
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { $, append } from '../../../base/browser/dom.js';
+import { IOminaiBrowserService, IOminaiProjectService, IOminaiExecutionService } from '../../common/ominaiServices.js';
 
 /**
  * Data contract for the WorkspaceTab.
@@ -60,6 +61,9 @@ export class WorkspaceTab extends Disposable {
 	constructor(
 		private readonly container: HTMLElement,
 		data: IWorkspaceData = DEFAULT_WORKSPACE_DATA,
+		@IOminaiBrowserService private readonly browserService: IOminaiBrowserService,
+		@IOminaiProjectService private readonly projectService: IOminaiProjectService,
+		@IOminaiExecutionService private readonly executionService: IOminaiExecutionService,
 	) {
 		super();
 		this.lastData = { ...data };
@@ -68,6 +72,14 @@ export class WorkspaceTab extends Disposable {
 		this.body = append(this.container, $('div.ominai-panel-body'));
 
 		this._buildSections(this.lastData);
+
+		// Subscribe to service changes and refresh automatically
+		this._register(this.browserService.onDidChangeBackendState(() => this._refreshFromServices()));
+		this._register(this.projectService.onDidChangeProjectState(() => this._refreshFromServices()));
+		this._register(this.executionService.onDidChangeExecutionState(() => this._refreshFromServices()));
+
+		// Initial data pull from services
+		this._refreshFromServices();
 	}
 
 	/**
@@ -110,6 +122,32 @@ export class WorkspaceTab extends Disposable {
 		}
 
 		this.lastData = { ...data };
+	}
+
+	/**
+	 * Pull current state from injected services and push it into the tab view.
+	 * Called once at construction and on every service state change.
+	 */
+	private _refreshFromServices(): void {
+		const isRunning = this.browserService.isRunning;
+		const execState = this.executionService.getCurrentState();
+		const progress = this.projectService.getProgress();
+
+		this.update({
+			projectName: this.projectService.getProjectName(),
+			currentStage: isRunning ? 'Backend Active' : 'Idle',
+			progress,
+			stageDescription: this.projectService.getCurrentTask(),
+			executionState: execState,
+			executionSummary: execState === 'running' ? 'Executing task...' : 'No tasks running',
+			browserStatus: isRunning ? 'active' : 'inactive',
+			browserSummary: isRunning ? 'Connected' : 'Not Active',
+			gitBranch: 'main',
+			gitChanges: 0,
+			errors: 0,
+			warnings: 0,
+			info: 0,
+		});
 	}
 
 	private _updateTextContent(selector: string, text: string): void {
