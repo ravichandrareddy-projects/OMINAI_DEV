@@ -63,6 +63,25 @@ export type ErrorCode =
 	| 'NOT_INITIALIZED';
 
 /**
+ * User-friendly display strings for each ErrorCode.
+ * These are shown in the chat UI when a backend operation fails,
+ * so the user understands what went wrong and what to do next.
+ */
+const ERROR_CODE_MESSAGES: Record<ErrorCode, string> = {
+	LOGIN_REQUIRED: 'Login required. Please sign in to the provider in the browser window.',
+	SELECTOR_STALE: 'Site interface changed. The page layout has been updated — the adapter may need a selector update.',
+	TIMEOUT: 'Request timed out. The provider took too long to respond.',
+	EMPTY_RESPONSE: 'Empty response. The provider returned no output.',
+	FALSE_COMPLETE: 'Generation appeared to finish but produced no output — likely a false completion.',
+	CRASH: 'Unexpected error occurred. Please try again.',
+	NOT_INITIALIZED: 'Backend not started. Please start the browser backend first.',
+};
+
+export function errorCodeToMessage(code: ErrorCode): string {
+	return ERROR_CODE_MESSAGES[code] ?? 'Unknown error.';
+}
+
+/**
  * Uniform return type matching Python's AdapterResult dataclass.
  * The Main Agent never has to special-case a provider's raw exceptions
  * or return shapes — every backend call speaks IAdapterResult.
@@ -91,6 +110,9 @@ export const IOminaiBrowserService = createDecorator<IOminaiBrowserService>('omi
 
 export interface IOminaiBrowserService {
 	readonly _serviceBrand: undefined;
+
+	/** Fires when the backend starts or stops. */
+	readonly onDidChangeBackendState: Event<void>;
 
 	/** True while the backend is started and ready for prompts. */
 	readonly isRunning: boolean;
